@@ -1,0 +1,37 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+
+const posts = (await getCollection("analisisPro")).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+---
+
+<Layout title="Análisis Pro — Football Data MX">
+  <section class="lineup wrap">
+    <h2>Análisis Pro</h2>
+    {
+      posts.length === 0 && (
+        <p style="font-family: var(--font-mono); color: var(--color-mist); padding: 2rem 0;">
+          Aún no hay análisis publicados. Esta sección arranca cuando el ritmo de Blog y
+          Amateur esté estable (Fase 2 del plan), con cadencia mensual y foco en ligas
+          europeas por disponibilidad de datos abiertos.
+        </p>
+      )
+    }
+    {
+      posts.map((post) => (
+        <a class="lineup-row" href={`/analisis-pro/${post.id}`}>
+          <span class="lineup-title">{post.data.title}</span>
+          <span class="lineup-cadence">
+            {post.data.date.toLocaleDateString("es-MX", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })}
+          </span>
+        </a>
+      ))
+    }
+  </section>
+</Layout>

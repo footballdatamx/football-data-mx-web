@@ -1,0 +1,41 @@
+---
+import "../styles/global.css";
+
+const { title = "Football Data MX" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header class="site-header">
+      <a href="/" class="brand">FOOTBALL DATA MX</a>
+      <nav>
+        <a href="/blog">Blog</a>
+        <a href="/amateur">Amateur</a>
+        <a href="/analisis-pro">Análisis Pro</a>
+        <a href="/articulos">Artículos</a>
+      </nav>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <p>Football Data MX — fútbol, datos, aprendizaje. Actualizado sin prisa.</p>
+    </footer>
+  </body>
+</html>

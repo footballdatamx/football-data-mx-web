@@ -1,0 +1,36 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+
+const posts = (await getCollection("articulos")).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+---
+
+<Layout title="Artículos — Football Data MX">
+  <section class="lineup wrap">
+    <h2>Artículos</h2>
+    {
+      posts.length === 0 && (
+        <p style="font-family: var(--font-mono); color: var(--color-mist); padding: 2rem 0;">
+          Aún no hay artículos publicados. Esta sección arranca cuando haya un tema con
+          suficiente evidencia acumulada para desarrollarlo a profundidad — sin fecha fija.
+        </p>
+      )
+    }
+    {
+      posts.map((post) => (
+        <a class="lineup-row" href={`/articulos/${post.id}`}>
+          <span class="lineup-title">{post.data.title}</span>
+          <span class="lineup-cadence">
+            {post.data.date.toLocaleDateString("es-MX", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })}
+          </span>
+        </a>
+      ))
+    }
+  </section>
+</Layout>

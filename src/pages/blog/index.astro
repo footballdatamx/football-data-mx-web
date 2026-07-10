@@ -1,0 +1,28 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+
+const posts = (await getCollection("blog")).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+---
+
+<Layout title="Blog — Football Data MX">
+  <section class="lineup wrap">
+    <h2>Blog</h2>
+    {
+      posts.map((post) => (
+        <a class="lineup-row" href={`/blog/${post.id}`}>
+          <span class="lineup-title">{post.data.title}</span>
+          <span class="lineup-cadence">
+            {post.data.date.toLocaleDateString("es-MX", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })}
+          </span>
+        </a>
+      ))
+    }
+  </section>
+</Layout>

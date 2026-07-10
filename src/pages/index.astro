@@ -1,0 +1,57 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+
+const posts = await getCollection("blog");
+const latest = posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())[0];
+
+const secciones = [
+  { num: "01", nombre: "Blog", cadencia: "Cada 2 semanas", href: "/blog" },
+  { num: "02", nombre: "Análisis amateur", cadencia: "Cada 2 semanas", href: "/amateur" },
+  { num: "03", nombre: "Análisis pro", cadencia: "Mensual", href: "/analisis-pro" },
+  { num: "04", nombre: "Artículos", cadencia: "Sin fecha fija", href: "/articulos" },
+];
+---
+
+<Layout title="Football Data MX">
+  <section class="hero">
+    <div class="hero-circle"></div>
+    <div class="hero-halfline"></div>
+    <div class="hero-inner">
+      <h1>Football<br />Data MX</h1>
+      <p>Fútbol, datos y aprendizaje — desde la cancha de colegios hasta las ligas de Europa.</p>
+    </div>
+  </section>
+
+  <section class="lineup wrap">
+    <h2>La alineación del sitio</h2>
+    {
+      secciones.map((s) => (
+        <a class="lineup-row" href={s.href}>
+          <span class="lineup-num">{s.num}</span>
+          <span class="lineup-title">{s.nombre}</span>
+          <span class="lineup-cadence">{s.cadencia}</span>
+        </a>
+      ))
+    }
+  </section>
+
+  <section class="about">
+    <div class="wrap">
+      <p>
+        Fútbol y datos hechos con honestidad.
+      </p>
+    </div>
+  </section>
+
+  {
+    latest && (
+      <section class="latest wrap">
+        <a class="latest-card" href={`/blog/${latest.id}`}>
+          <span class="eyebrow">Último en el blog</span>
+          <h3>{latest.data.title}</h3>
+        </a>
+      </section>
+    )
+  }
+</Layout>
