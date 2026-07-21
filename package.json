@@ -13,6 +13,8 @@
   },
   "dependencies": {
     "astro": "^7.0.7",
+    "chart.js": "^4.5.1",
+    "papaparse": "^5.5.4",
     "zod": "^4.4.3"
   }
 }

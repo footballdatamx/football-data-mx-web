@@ -1,0 +1,362 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="Penales de Mundial: a dónde patear — Football Data MX">
+  <article class="wrap" style="padding: 4rem 1.5rem; max-width: 68ch;">
+    <p class="eyebrow" style="font-family: var(--font-mono); color: var(--color-pitch);">Análisis Pro</p>
+    <h1 style="font-size: 2rem; margin: 0.5rem 0 2rem;">
+    Lo que 320 tiros dicen acerca de cómo triunfar en una tanda de penales en el Mundial
+    </h1>
+
+    <div class="post-body">
+     <p>
+        Si no sabes adónde patear, patéalo fuerte y al medio. Eso siempre dicen los sabios de
+        la pelota. La pregunta natural es, ¿Será verdad? ¿Qué dicen los números de <strong>todos </strong> los penales de tandas mundialistas desde 1982 hasta 2022? Usé un dataset público con 320 penales
+        válidos (excluyendo los que nunca se patearon porque la tanda ya se había definido), que registra
+        la zona del disparo, el pie del pateador, hacia dónde se tiró el portero, y el número de penal
+        dentro de la tanda.
+      </p>
+
+      <figure style="margin: 2rem 0;">
+        <svg viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg" style="width: 100%; max-width: 420px; display: block; margin: 0 auto;">
+          <!-- Fondos de zona destacados -->
+          <rect x="20" y="140" width="86.67" height="60" fill="rgba(31, 74, 52, 0.12)" />
+          <rect x="193.33" y="20" width="86.67" height="60" fill="rgba(227, 162, 60, 0.2)" />
+
+          <!-- Red (textura sutil) -->
+          <g stroke="#0B1712" stroke-opacity="0.08" stroke-width="1">
+            <line x1="20" y1="50" x2="280" y2="50" />
+            <line x1="20" y1="110" x2="280" y2="110" />
+            <line x1="20" y1="170" x2="280" y2="170" />
+            <line x1="63" y1="20" x2="63" y2="200" />
+            <line x1="150" y1="20" x2="150" y2="200" />
+            <line x1="237" y1="20" x2="237" y2="200" />
+          </g>
+
+          <!-- Marco de la portería -->
+          <rect x="20" y="20" width="260" height="180" fill="none" stroke="#0B1712" stroke-width="6" />
+
+          <!-- Líneas divisorias 3x3 -->
+          <g stroke="#9FB3A6" stroke-width="2">
+            <line x1="106.67" y1="20" x2="106.67" y2="200" />
+            <line x1="193.33" y1="20" x2="193.33" y2="200" />
+            <line x1="20" y1="80" x2="280" y2="80" />
+            <line x1="20" y1="140" x2="280" y2="140" />
+          </g>
+
+          <!-- Números de zona -->
+          <g font-family="JetBrains Mono, monospace" font-size="26" font-weight="600" fill="#1F4A34" text-anchor="middle">
+            <text x="63" y="58">1</text>
+            <text x="150" y="58">2</text>
+            <text x="237" y="58">3</text>
+            <text x="63" y="118">4</text>
+            <text x="150" y="118">5</text>
+            <text x="237" y="118">6</text>
+            <text x="63" y="178">7</text>
+            <text x="150" y="178">8</text>
+            <text x="237" y="178">9</text>
+          </g>
+        </svg>
+        <figcaption style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-mist); text-align: center; margin-top: 0.75rem;">
+          Numeración de zonas, vista desde la perspectiva del pateador.
+          <span style="color: #1F4A34;">■</span> Zona 7 (la más usada) —
+          <span style="color: #E3A23C;">■</span> Zona 3 (mayor % pero muestra chica)
+        </figcaption>
+      </figure>
+
+      <h2>La zona más popular no es la más efectiva</h2>
+      <p>
+        La esquina baja izquierda (Zona 7) es, por mucho, la más elegida: 81 de los 320
+        penales fueron ahí. Sin embargo, su efectividad (63%) está por debajo del promedio general.
+        Otras zonas menos usadas, como la esquina alta contraria (Zona 3, con solo 16 tiros),
+        tienen una efectividad mucho mayor (87.5%) — aunque con una muestra más pequeña, que
+        hay que tomar con cautela. Patear arriba puede requerir una mayor complejidad, pero también
+        se muestra como la decisión más efectiva.
+      </p>
+      <canvas id="grafica-zona" style="max-width: 700px; margin: 1.5rem 0;"></canvas>
+
+      <h2>Diestros vs. zurdos</h2>
+      <p>
+        La diferencia entre diestros y zurdos es casi insignificante: los diestros
+        anotan un 69.5% de sus penales, los zurdos 67.2%. Vale la pena aclarar que
+        hay muchos menos zurdos en la muestra (64 tiros contra 256), así que esta
+        comparación es menos concluyente que las demás.
+      </p>
+      <canvas id="grafica-pie" style="max-width: 500px; margin: 1.5rem 0;"></canvas>
+
+      <h2>La presión de la muerte súbita</h2>
+      <p>
+        Tras el sexto penal, es normal intuir que el pateador tendrá mucha más presión,
+        no por nada se llama muerte súbita. El análisis mostró que del primer al quinto
+        penal de cada tanda, la efectividad se mantiene bastante estable (entre 70% y 74%).
+        En cambio, en la muerte súbita (6º penal en adelante), cae a 65.5%, lo que sugiere
+        que la presión extra sí pasa factura.
+      </p>
+      <canvas id="grafica-orden" style="max-width: 700px; margin: 1.5rem 0;"></canvas>
+
+      <h2>Adivinar el lado es la clave</h2>
+      <p>
+        Cuando el portero se tira hacia el mismo lado de la portería donde va el disparo, solo el
+        <strong> 51.4%</strong> de esos penales terminan en gol. Cuando se tira al lado
+        equivocado, la cifra sube a <strong>84.3%</strong>. Una diferencia de 33 puntos
+        porcentuales, siendo por mucho el factor más determinante de todos los analizados. Tiene
+        sentido: es exactamente lo que un papel con tendencias de cobro, como el de Lehmann en 2006
+        (véase <a href="/blog/el-papel-que-descifro-una-tanda-de-penales">la historia completa en el blog</a> para mayor entendimiento), intenta resolver.
+      </p>
+      <canvas id="grafica-portero" style="max-width: 500px; margin: 1.5rem 0;"></canvas>
+
+      <h2>Sobre el tamaño de muestra</h2>
+      <p>
+        No todas las comparaciones de este análisis tienen el mismo peso estadístico. Entre
+        más chica es una muestra, más fácil es que un solo resultado distinto cambie el
+        porcentaje de forma dramática. La Zona 3 (87.5% de efectividad, la más alta) se basa
+        en solo 16 tiros. En un caso hipotético, un solo penal que hubiera fallado en vez de
+        anotarse habría bajado esa cifra a 81.3%. La Zona 7 (63.0%), en cambio, tiene 81 tiros
+        detrás — ahí, un resultado distinto apenas mueve el porcentaje poco más de un punto.
+      </p>
+      <canvas id="grafica-muestra" style="max-width: 700px; margin: 1.5rem 0;"></canvas>
+      <p>
+        Para intentar sacar el máximo sin importar el tamaño de la muestra, se calculó un
+        <strong>intervalo de confianza del 95%</strong> para cada zona, usando el método de
+        Wilson (el más recomendado para muestras chicas como estas). La idea del método de
+        Wilson consiste en partir del porcentaje observado y el número de datos (en este caso tiros)
+        disponibles para estimar el intervalo que constituye un rango de valores donde probablemente
+        esté el verdadero porcentaje de esa zona si tuviéramos muchísimos más datos. Entre menos
+        tiros haya, menos debemos confiar en el número exacto que salió, y el intervalo se ensancha
+        para reflejar esa incertidumbre. Por otro lado, entre más tiros, el intervalo se angosta
+        porque hay más certeza. El "95%" es el nivel de confianza estándar en estadística: si
+        repitiéramos este estudio muchas veces, un intervalo calculado así contendría el valor real
+        en el 95% de los casos.
+      </p>
+      <canvas id="grafica-intervalo" style="max-width: 700px; margin: 1.5rem 0;"></canvas>
+      <p>
+        Con esto, el panorama queda más claro: el intervalo de la Zona 3 (64.0%–96.5%) es tan
+        ancho que se traslapa con casi todas las demás zonas. Por tanto, no podemos afirmar con
+        confianza que sea realmente mejor, solo que tuvo buena suerte con pocos intentos. La
+        Zona 7, con el intervalo más angosto (52.1%–72.7%), es la estimación en la que más
+        podemos confiar, aunque su porcentaje central sea más bajo.
+      </p>
+
+      <h2>Limitaciones</h2>
+      <p>
+        Este dataset no incluye la potencia ni la altura exacta del disparo, solo la zona
+        general. Esta aclaración es relevante porque un tiro fuerte y bien colocado puede
+        ser gol aunque el portero adivine el lado. Tomando en cuenta dichas aclaraciones y
+        los resultados de los intervalos de confianza previamente mencionados, el hallazgo
+        del portero (apoyado en muestras de 148 y 172 casos) parece ser el más sólido de todos,
+        aunque el resto también es de gran valor al tomar en cuenta el contexto y que la muestra
+        se centra únicamente en la Copa del Mundo de 1982 a 2022.
+      </p>
+
+      <p style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--color-mist); margin-top: 3rem;">
+        Fuente de datos: <a href="https://www.kaggle.com/datasets/luigibizarro/world-cup-penalty-shootouts-1982-2022">World Cup Penalty Shootouts (1982-2022), Kaggle</a>
+      </p>
+    </div>
+  </article>
+</Layout>
+
+<script>
+  import Chart from "chart.js/auto";
+  import Papa from "papaparse";
+
+  const res = await fetch("/data/world-cup-penalty-shootouts.csv");
+  const csvText = await res.text();
+  const { data: rows } = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+
+  // ===== Gráfica 1: efectividad por zona =====
+  const zonas = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
+  const zoneStats = Object.fromEntries(zonas.map((z) => [z, { goles: 0, total: 0 }]));
+  rows.forEach((r) => {
+    if (!zoneStats[r.Zone]) return;
+    zoneStats[r.Zone].total++;
+    if (r.Goal === "1") zoneStats[r.Zone].goles++;
+  });
+
+  new Chart(document.getElementById("grafica-zona"), {
+    type: "bar",
+    data: {
+      labels: zonas.map((z) => `Zona ${z}`),
+      datasets: [
+        {
+          label: "% de gol",
+          data: zonas.map((z) => (100 * zoneStats[z].goles) / zoneStats[z].total),
+          backgroundColor: "#1F4A34",
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: { title: { display: true, text: "Efectividad (% de gol) por zona de tiro" } },
+      scales: { y: { max: 100 } },
+    },
+  });
+
+  // ===== Gráfica 2: efectividad por pie =====
+  const footStats = { R: { goles: 0, total: 0 }, L: { goles: 0, total: 0 } };
+  rows.forEach((r) => {
+    if (!footStats[r.Foot]) return;
+    footStats[r.Foot].total++;
+    if (r.Goal === "1") footStats[r.Foot].goles++;
+  });
+
+  new Chart(document.getElementById("grafica-pie"), {
+    type: "bar",
+    data: {
+      labels: ["Diestros", "Zurdos"],
+      datasets: [
+        {
+          label: "% de gol",
+          data: [
+            (100 * footStats.R.goles) / footStats.R.total,
+            (100 * footStats.L.goles) / footStats.L.total,
+          ],
+          backgroundColor: ["#1F4A34", "#E3A23C"],
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: { title: { display: true, text: "Efectividad por pie del pateador" } },
+      scales: { y: { max: 100 } },
+    },
+  });
+
+  // ===== Gráfica 3: efectividad por número de penal =====
+  const penStats = { "1": { goles: 0, total: 0 }, "2": { goles: 0, total: 0 }, "3": { goles: 0, total: 0 }, "4": { goles: 0, total: 0 }, "5": { goles: 0, total: 0 }, "6+": { goles: 0, total: 0 } };
+  rows.forEach((r) => {
+    const n = parseInt(r.Penalty_Number, 10);
+    const key = n <= 5 ? String(n) : "6+";
+    penStats[key].total++;
+    if (r.Goal === "1") penStats[key].goles++;
+  });
+
+  new Chart(document.getElementById("grafica-orden"), {
+    type: "bar",
+    data: {
+      labels: Object.keys(penStats).map((k) => `Penal ${k}`),
+      datasets: [
+        {
+          label: "% de gol",
+          data: Object.values(penStats).map((v) => (100 * v.goles) / v.total),
+          backgroundColor: "#1F4A34",
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: { title: { display: true, text: "Efectividad por orden del penal en la tanda" } },
+      scales: { y: { max: 100 } },
+    },
+  });
+
+  // ===== Gráfica 4: portero acierta lado vs no =====
+  const zoneToSide = { "1": "I", "4": "I", "7": "I", "2": "C", "5": "C", "8": "C", "3": "D", "6": "D", "9": "D" };
+  const keeperToSide = { L: "I", C: "C", R: "D" };
+  const sideStats = { acierta: { goles: 0, total: 0 }, falla: { goles: 0, total: 0 } };
+  rows.forEach((r) => {
+    const shotSide = zoneToSide[r.Zone];
+    const keeperSide = keeperToSide[r.Keeper];
+    if (!shotSide || !keeperSide) return;
+    const key = shotSide === keeperSide ? "acierta" : "falla";
+    sideStats[key].total++;
+    if (r.Goal === "1") sideStats[key].goles++;
+  });
+
+  new Chart(document.getElementById("grafica-portero"), {
+    type: "bar",
+    data: {
+      labels: ["Portero acierta el lado", "Portero falla el lado"],
+      datasets: [
+        {
+          label: "% de gol",
+          data: [
+            (100 * sideStats.acierta.goles) / sideStats.acierta.total,
+            (100 * sideStats.falla.goles) / sideStats.falla.total,
+          ],
+          backgroundColor: ["#1F4A34", "#E3A23C"],
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: { title: { display: true, text: "Efectividad según si el portero acertó el lado" } },
+      scales: { y: { max: 100 } },
+    },
+  });
+
+  // ===== Gráfica 5: cantidad de tiros por zona =====
+  new Chart(document.getElementById("grafica-muestra"), {
+    type: "bar",
+    data: {
+      labels: zonas.map((z) => `Zona ${z}`),
+      datasets: [
+        {
+          label: "Número de tiros",
+          data: zonas.map((z) => zoneStats[z].total),
+          backgroundColor: "#9FB3A6",
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: { title: { display: true, text: "Cantidad de tiros registrados por zona" } },
+    },
+  });
+
+  // ===== Gráfica 6: intervalo de confianza de Wilson por zona =====
+  function wilsonInterval(x, n, z = 1.96) {
+    const phat = x / n;
+    const denom = 1 + (z * z) / n;
+    const center = (phat + (z * z) / (2 * n)) / denom;
+    const margin = (z * Math.sqrt((phat * (1 - phat)) / n + (z * z) / (4 * n * n))) / denom;
+    return { lo: 100 * (center - margin), phat: 100 * phat, hi: 100 * (center + margin) };
+  }
+
+  const wilsonPorZona = zonas.map((z) => wilsonInterval(zoneStats[z].goles, zoneStats[z].total));
+
+  new Chart(document.getElementById("grafica-intervalo"), {
+    data: {
+      labels: zonas.map((z) => `Zona ${z}`),
+      datasets: [
+        {
+          type: "bar",
+          label: "Intervalo de confianza 95%",
+          data: wilsonPorZona.map((w) => [w.lo, w.hi]),
+          backgroundColor: "rgba(31, 74, 52, 0.3)",
+          borderColor: "#1F4A34",
+          borderWidth: 1,
+        },
+        {
+          type: "line",
+          label: "% observado",
+          data: wilsonPorZona.map((w) => w.phat),
+          showLine: false,
+          pointBackgroundColor: "#E3A23C",
+          pointBorderColor: "#E3A23C",
+          pointRadius: 5,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: { title: { display: true, text: "Intervalo de confianza (95%, Wilson) por zona" } },
+      scales: { y: { max: 100 } },
+    },
+  });
+</script>
+
+<style>
+  .post-body {
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+    line-height: 1.75;
+  }
+  .post-body p {
+    margin: 0 0 1.25rem;
+  }
+  .post-body h2 {
+    font-size: 1.3rem;
+    margin: 2rem 0 1rem;
+  }
+</style>

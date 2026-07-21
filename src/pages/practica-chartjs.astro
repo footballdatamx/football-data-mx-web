@@ -1,0 +1,58 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Práctica Chart.js — Football Data MX">
+  <section class="lineup wrap">
+    <h2>Práctica: Chart.js</h2>
+    <p style="font-family: var(--font-mono); color: var(--color-mist); padding: 1rem 0;">
+      Página de ejercicio, con datos ficticios. No es contenido real del sitio.
+    </p>
+
+    <!-- Este es el "lienzo" donde Chart.js va a dibujar la gráfica -->
+    <canvas id="grafica-jugadores" style="max-width: 700px; margin-top: 2rem;"></canvas>
+  </section>
+</Layout>
+
+<script>
+  // Importamos Chart.js. "auto" incluye todo lo necesario para que funcione sin configurar más.
+  import Chart from "chart.js/auto";
+
+  // ===== Datos ficticios de ejemplo =====
+  // Mismo esquema que la plantilla de datos amateur: un jugador, sus goles, sus asistencias.
+  const jugadores = ["Jugador 1", "Jugador 2", "Jugador 3", "Jugador 4", "Jugador 5"];
+  const goles = [3, 1, 5, 0, 2];
+  const asistencias = [1, 4, 2, 3, 0];
+
+  // Buscamos el elemento <canvas> que pusimos arriba, por su id
+  const canvas = document.getElementById("grafica-jugadores");
+
+  // Creamos la gráfica
+  new Chart(canvas, {
+    type: "bar", // tipo de gráfica: barras
+    data: {
+      labels: jugadores, // lo que va en el eje horizontal
+      datasets: [
+        {
+          label: "Goles",
+          data: goles,
+          backgroundColor: "#1F4A34", // verde cancha
+        },
+        {
+          label: "Asistencias",
+          data: asistencias,
+          backgroundColor: "#E3A23C", // ámbar
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: "Goles y asistencias por jugador (datos ficticios)",
+        },
+      },
+    },
+  });
+</script>
