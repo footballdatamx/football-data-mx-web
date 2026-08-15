@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import Analytics from "@vercel/analytics/astro";
 
 const {
   title = "Football Data MX",
@@ -12,7 +13,6 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 <!doctype html>
 <html lang="es">
   <head>
-    <meta name="google-site-verification" content="K3WRqkfRvIfBseu_sCx9P8kiBIyGp2H6IhYrDw9o3AY" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
@@ -57,5 +57,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <footer class="site-footer">
       <p>Football Data MX — fútbol, datos, aprendizaje. Actualizado sin prisa.</p>
     </footer>
+
+    <Analytics />
   </body>
 </html>
