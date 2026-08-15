@@ -5,13 +5,30 @@ import { getCollection } from "astro:content";
 const posts = (await getCollection("articulos")).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
 );
+
+// Artículos interactivos (con gráficas), no viven en la colección de Markdown
+const articulosInteractivos = [
+  {
+    href: "/articulos/eficiencia-fichajes-laliga-premier",
+    title: "¿Realmente importa gastar? Fichajes y éxito en LaLiga y la Premier League",
+    fecha: "2026",
+  },
+];
 ---
 
 <Layout title="Artículos — Football Data MX">
   <section class="lineup wrap">
     <h2>Artículos</h2>
     {
-      posts.length === 0 && (
+      articulosInteractivos.map((a) => (
+        <a class="lineup-row" href={a.href}>
+          <span class="lineup-title">{a.title}</span>
+          <span class="lineup-cadence">{a.fecha}</span>
+        </a>
+      ))
+    }
+    {
+      posts.length === 0 && articulosInteractivos.length === 0 && (
         <p style="font-family: var(--font-mono); color: var(--color-mist); padding: 2rem 0;">
           Aún no hay artículos publicados. Esta sección arranca cuando haya un tema con
           suficiente evidencia acumulada para desarrollarlo a profundidad — sin fecha fija.

@@ -1,0 +1,562 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="¿Realmente importa gastar? Fichajes, eficiencia y balance en LaLiga y la Premier League — Football Data MX">
+  <article class="wrap" style="padding: 4rem 1.5rem; max-width: 70ch;">
+    <p class="eyebrow" style="font-family: var(--font-mono); color: var(--color-pitch);">Artículo</p>
+    <h1 style="font-size: 2.1rem; margin: 0.5rem 0 2rem;">
+      ¿Realmente importa gastar? Fichajes, eficiencia y balance en LaLiga y la Premier League
+    </h1>
+
+    <div class="post-body">
+      <p style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--color-mist);">
+        Proyecto en colaboración con Milo y Jack.
+      </p>
+
+      <h2>Las preguntas</h2>
+      <p>
+        Diez temporadas de datos, dos ligas, 400 club-temporadas. Este artículo responde dos
+        preguntas relacionadas pero distintas:
+      </p>
+      <p>
+        <strong>Pregunta 1 (Eficiencia):</strong> ¿el gasto en fichajes se traduce en éxito
+        deportivo, y esto varía entre LaLiga y la Premier League?
+      </p>
+      <p>
+        <strong>Pregunta 2 (Balance):</strong> esa relación entre gasto y éxito, ¿está
+        concentrada en unos pocos equipos, o repartida de forma más pareja dentro de cada liga?
+      </p>
+
+      <h2>Fuentes de datos y construcción</h2>
+      <p>
+        Los datos se obtuvieron de Transfermarkt (gasto en fichajes) y FBref (resultados de
+        liga, competiciones UEFA y copas domésticas), cubriendo las temporadas 2016-17 a
+        2025-26. Se tomaron en cuenta los datos de 200 club-temporadas por liga para el
+        análisis, correspondientes a cada equipo que jugó al menos una temporada en la
+        Premier League o en LaLiga durante el periodo establecido.
+      </p>
+
+      <h2>Metodología: los índices</h2>
+      <p>
+        Se construyeron tres índices, en orden:
+      </p>
+      <p>
+        <strong>UEFA Score</strong> y <strong>Cup Score</strong>: puntajes por ronda alcanzada
+        en competiciones europeas y en la copa doméstica (FA Cup / Copa del Rey)
+        respectivamente, desde 0 (no participó) hasta 100 (campeón).
+      </p>
+      <p>
+        <strong>Club Success Index (CSI)</strong>: combina el desempeño doméstico en liga
+        (puntos y diferencia de gol, como percentiles), el desempeño europeo, y el desempeño
+        en copa doméstica:
+      </p>
+      <div style="background: var(--color-pitch-dark); color: var(--color-chalk); padding: 1.5rem; font-family: var(--font-mono); text-align: center; margin: 1.5rem 0;">
+        CSI = 0.65 × Doméstico + 0.25 × UEFA + 0.10 × Copa
+      </div>
+      <p>
+        <strong>Efficiency Index</strong>: CSI dividido entre el gasto en fichajes de esa
+        temporada — la medida central para responder la Pregunta 1.
+      </p>
+
+      <h3>¿Por qué esos pesos?</h3>
+      <p>
+        Primero, confirmamos con <strong>regresión lineal</strong> (la usamos aquí para
+        confirmar qué tan bien un conjunto de variables explica a otra) que <strong>puntos</strong>
+        (<strong>Pts</strong>) y <strong>diferencia de gol</strong> (<strong>GD</strong>)
+        explican el 89-91% de la varianza del ranking final en ambas ligas — justifica
+        usarlos como base del componente doméstico. Preferimos Pts y GD sobre el Rank final
+        directamente porque son variables continuas, no ordinales: el Rank trata igual a un
+        campeón con 20 puntos de ventaja que a uno con 1 solo punto, mientras que Pts y GD sí
+        capturan esa diferencia de magnitud — algo importante para un índice que busca medir
+        niveles de éxito, no solo posiciones relativas. Además, son las dos variables que la
+        propia liga usa oficialmente para decidir el standing final (Pts como criterio
+        principal, GD como desempate), así que no es una elección arbitraria entre muchas
+        alternativas posibles, sino replicar de forma continua el mismo mecanismo con el que
+        se define el ranking. Con <strong>PCA</strong> (componentes principales — útil
+        para repartir el peso entre dos variables sin necesitar una variable externa que
+        predecir) confirmamos que ambas variables merecen
+        el mismo peso entre sí (50/50), de forma consistente en los tres contextos que
+        probamos (LaLiga, Premier, combinado).
+      </p>
+      <p>
+        Para el reparto entre doméstico, europeo y copa, partimos de un argumento estructural:
+        una temporada de liga son 38 partidos, una carrera completa en copa doméstica ronda
+        los 5-7 partidos según el camino recorrido, y una carrera completa en competición UEFA
+        ronda los 15-17. Eso da aproximadamente 63% / 27% / 10% — cerca del 65/25/10 que
+        usamos como referencia.
+      </p>
+      <p>
+        También pusimos a prueba esos pesos con un método más exigente: usamos el gasto en
+        fichajes de la <em>siguiente</em> temporada como variable externa, y medimos cuánto
+        aporta cada componente a explicarlo (<strong>descomposición LMG</strong> — sirve para
+        saber cuánto aporta cada variable por separado dentro de un modelo con varias a la
+        vez). El resultado fue revelador:
+        a diferencia de una versión anterior de este análisis (que solo consideraba doméstico
+        y UEFA, y daba resultados contradictorios entre ligas), con las tres variables la
+        evidencia fue mucho más consistente entre LaLiga, Premier League y el conjunto
+        combinado — pero apuntó a un reparto distinto: <strong>lo europeo pesa más que lo
+        doméstico</strong> a la hora de predecir el gasto futuro de un club (entre 52% y 56%
+        para UEFA, contra 37-39% para lo doméstico, en los tres contextos). El peso de la
+        copa sí coincidió razonablemente con el argumento estructural (5-10%).
+      </p>
+      <p>
+        Tiene sentido si se piensa en términos financieros: clasificar a la Champions League
+        tiene un impacto económico tan grande que predice mejor el gasto futuro que la
+        posición en liga — pero eso no significa necesariamente que deba pesar más en un
+        índice de <em>éxito deportivo</em> de esta temporada, que es lo que buscamos medir.
+        En vez de forzar una resolución de esa tensión, decidimos probar si las conclusiones
+        del estudio dependen de resolverla.
+      </p>
+
+      <h3>Análisis de sensibilidad</h3>
+      <p>
+        Recalculamos todo el estudio bajo tres repartos distintos: el estructural (65/25/10),
+        un punto medio (50/40/10), y uno cercano a la evidencia LMG (35/55/10).
+      </p>
+      <canvas id="grafica-sensibilidad" style="max-width: 700px; margin: 1.5rem 0;"></canvas>
+      <p>
+        En los tres casos, LaLiga sale más "eficiente" que la Premier League, y los mismos
+        cinco casos destacados (Liverpool 19-20, Real Sociedad 20-21, Athletic Club 23-24,
+        Villarreal 23-24, Real Madrid 19-20) se mantienen en el top de eficiencia, sin importar
+        qué reparto se use. Las conclusiones de este artículo no dependen de resolver la
+        tensión entre el argumento estructural y la evidencia LMG — así que usamos 65/25/10
+        como referencia por ser el más fácil de justificar e interpretar.
+      </p>
+
+      <h2>Pregunta 1: Eficiencia</h2>
+      <p>
+        Con el reparto de referencia (65/25/10), estos son los promedios de cada liga:
+      </p>
+      <canvas id="grafica-resultados" style="max-width: 700px; margin: 1.5rem 0;"></canvas>
+      <p>
+        LaLiga gasta en promedio poco más de la cuarta parte de lo que gasta la Premier
+        League (37M vs. 119M), pero logra un Club Success Index prácticamente idéntico (41.1
+        vs. 40.3). El resultado: LaLiga es, en promedio, mucho más "eficiente" en términos de
+        éxito por cada millón gastado.
+      </p>
+
+      <h3>El problema del gasto cero</h3>
+      <p>
+        Nueve temporadas en LaLiga y una en Premier League reportan gasto "-" (lo cual puede
+        implicar un gasto no reportado o un gasto nulo). Dividir por un número tan pequeño
+        infla artificialmente la eficiencia calculada, por lo que se usa un tope (CEI) en el
+        índice. Aun con el tope, el efecto es medible: si excluimos esas temporadas del
+        promedio, la eficiencia de LaLiga baja de 3.16 a 2.46 (Premier League apenas cambia:
+        0.58 → 0.48). La conclusión general se sostiene, pero su magnitud está parcialmente
+        inflada por este artefacto de los datos.
+      </p>
+
+      <h3>Casos de scouting inteligente</h3>
+      <p>
+        Filtrando a temporadas con gasto real (≥10M, para excluir el ruido de clubes que casi
+        no participan del mercado), estos son los cinco casos más eficientes:
+      </p>
+      <canvas id="grafica-top5" style="max-width: 700px; margin: 1.5rem 0;"></canvas>
+      <p>
+        <strong>Liverpool 19-20</strong> encabeza la lista — la temporada en que ganaron la
+        Premier League, con apenas 10.4M gastados esa campaña específica (el equipo se armó en
+        años anteriores). <strong>Real Sociedad 20-21</strong> y <strong>Villarreal 23-24</strong>
+        son los casos españoles más claros de scouting inteligente dentro del mercado — no son
+        clubes que no gastan, son clubes que gastan poco y aciertan.
+      </p>
+
+      <h3>Un caso aparte: Athletic Club</h3>
+      <p>
+        Athletic Club no encaja en la categoría anterior. Comparado con otros clubes de gasto
+        similarmente bajo en LaLiga:
+      </p>
+      <canvas id="grafica-athletic" style="max-width: 700px; margin: 1.5rem 0;"></canvas>
+      <p>
+        Osasuna, Rayo Vallecano, Eibar y Mallorca gastan cifras parecidas a Athletic Club (8-11M
+        en promedio), pero su CSI promedio queda claramente por debajo del promedio de la liga
+        (41.1). Athletic Club, en cambio, promedia 49.1 — por encima del promedio general — de
+        forma consistente en sus 10 temporadas en el dataset, no como un golpe de suerte
+        puntual. Esto no es una historia de comprar barato y vender caro (como Real Sociedad o
+        Villarreal): es una historia de casi no participar del mercado de fichajes en absoluto,
+        gracias a su política de cantera vasca, y aun así rendir por encima del promedio.
+      </p>
+
+      <h3>Validación con residuales de regresión</h3>
+      <p>
+        El Efficiency Index (CSI ÷ gasto) tiene un sesgo estructural: dividir entre un número
+        chico infla el resultado, así que favorece de entrada a los equipos de bajo gasto,
+        incluso con el tope (CEI) que ya usamos para contenerlo. Para poner a prueba la
+        conclusión con un método que no tenga ese sesgo, ajustamos una <strong>regresión</strong>
+        (aquí sirve para trazar la relación típica entre gasto y éxito, y así medir qué tanto
+        se aleja cada equipo de lo esperado) entre gasto y CSI, y calculamos el
+        <strong>residual</strong> de cada club-temporada — la diferencia entre el CSI real y
+        el CSI que el modelo hubiera predicho solo a partir de su gasto. Un residual positivo
+        significa que el equipo rindió por encima de lo esperado para lo que gastó; uno
+        negativo, por debajo.
+      </p>
+      <p>
+        Primero comparamos si esa relación se ajusta mejor con una línea recta o con una curva
+        logarítmica (que capturaría "rendimientos decrecientes" — el primer millón rinde más
+        que el millón 200). La línea recta ganó en los tres casos (combinado, LaLiga, Premier
+        League), así que es la que se usó.
+      </p>
+      <canvas id="grafica-residual-promedio" style="max-width: 500px; margin: 1.5rem 0;"></canvas>
+      <p>
+        Usando una sola regresión ajustada sobre las dos ligas juntas (necesario para poder
+        comparar el promedio entre ellas — con regresiones separadas por liga, el residual
+        promedio siempre da cero por construcción), el resultado confirma la Pregunta 1 por un
+        camino matemático completamente distinto al de la razón simple: LaLiga promedia un
+        residual de <strong>+5.3</strong> (rinde por encima de lo que su gasto predice),
+        Premier League promedia <strong>−5.3</strong> (por debajo). Misma conclusión, método
+        distinto — el tipo de confirmación cruzada que hace un hallazgo más confiable.
+      </p>
+
+      <h3>Pero "más eficiente" depende de qué pregunta hagas</h3>
+      <p>
+        Aquí encontramos algo que vale la pena mostrar en vez de esconder. Cuando se identifica
+        a los casos más destacados dentro de cada liga (con regresiones separadas esta vez, para
+        comparar cada equipo contra lo típico de su propia liga), el resultado cambia bastante
+        respecto al top-5 de la razón simple:
+      </p>
+      <canvas id="grafica-top-residuales" style="max-width: 700px; margin: 1.5rem 0;"></canvas>
+      <p>
+        El residual premia superar expectativas <em>en cualquier nivel de gasto</em>, no solo
+        con gasto bajo. Por eso aquí dominan clubes grandes que superaron una expectativa que
+        ya de por sí era alta: Liverpool 21-22, Manchester City 18-19, varias temporadas de
+        Real Madrid. El caso más llamativo es <strong>Tottenham 18-19</strong>: no fichó a
+        nadie en toda la temporada — el primer club de la Premier League en la era moderna en
+        hacerlo — y aun así llegó a la final de la Champions League.
+      </p>
+      <p>
+        De los cinco casos que destacamos antes con la razón simple, solo Liverpool 19-20 y
+        Real Madrid 19-20 se mantienen cerca de la cima con este método; Real Sociedad,
+        Villarreal y Athletic Club caen mucho más abajo en el ranking. Su eficiencia por
+        millón gastado sigue siendo real, pero confirma que la razón simple y el residual
+        responden preguntas distintas: una premia gastar poco y rendir bien; la otra premia
+        superar expectativas, sin importar cuánto se gaste.
+      </p>
+
+      <h2>Pregunta 2: Balance</h2>
+      <p>
+        La pregunta de balance mira algo distinto: ¿el éxito depende del dinero de la misma
+        manera en las dos ligas, o de forma más pareja entre los equipos de cada una?
+      </p>
+      <canvas id="grafica-dispersión" style="max-width: 700px; margin: 1.5rem 0;"></canvas>
+      <p>
+        <strong>El gasto está mucho más concentrado en LaLiga.</strong> El coeficiente de
+        variación del gasto (qué tan dispareja es la inversión entre equipos) es de 1.57 en
+        LaLiga, contra 0.74 en Premier League — más del doble de dispersión. Solo 6 equipos
+        de LaLiga han gastado más de 100M en una temporada en toda la década analizada; en
+        Premier League, 23 equipos distintos lo han hecho.
+      </p>
+      <p>
+        <strong>El dinero predice mejor el éxito en LaLiga.</strong> La correlación entre
+        gasto y Club Success Index es de 0.56 en LaLiga, contra 0.41 en Premier League — en
+        España, saber cuánto gastó un club te dice más sobre qué tan bien le fue esa
+        temporada que en Inglaterra, donde otros factores (desarrollo de cantera, dirección
+        técnica, scouting) pesan relativamente más.
+      </p>
+
+      <h2>Limitaciones</h2>
+      <p>
+        El dataset cubre prácticamente toda una década de primera división en ambas ligas,
+        así que los resultados describen bien este periodo específico, pero no deben
+        extrapolarse automáticamente a otras épocas o ligas. No se incluyen salarios,
+        lesiones, ni cambios de entrenador — variables que sin duda influyen en el éxito y no
+        están capturadas aquí. Aunque probamos que las conclusiones de la Pregunta 1 no
+        dependen del reparto exacto entre doméstico/UEFA/copa, la tensión entre el argumento
+        estructural y la evidencia LMG sigue sin resolverse del todo.
+      </p>
+
+      <h2>Conclusión</h2>
+      <p>
+        Gastar más no garantiza más éxito, pero tampoco es irrelevante. La relación existe en
+        ambas ligas, solo que de forma distinta. LaLiga es más eficiente en promedio (más
+        éxito por cada millón gastado), pero esa eficiencia convive con una concentración
+        financiera mucho más marcada: pocos equipos gastan, y esos mismos equipos dominan.
+        Premier League es menos "eficiente" en ese sentido estricto, pero reparte tanto el
+        gasto como el éxito entre un grupo mucho más amplio de clubes. Son dos modelos
+        distintos de competir, y los datos de una década los distinguen con bastante claridad.
+      </p>
+
+      <p style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--color-mist); margin-top: 3rem;">
+        Fuentes de datos: Transfermarkt, FBref.
+      </p>
+    </div>
+  </article>
+</Layout>
+
+<script>
+  import Chart from "chart.js/auto";
+  import Papa from "papaparse";
+
+  const res = await fetch("/data/efficiency_matters_v2.csv");
+  const csvText = await res.text();
+  const { data: raw } = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+
+  const rows = raw.map((r) => ({
+    Squad: r.Squad,
+    Season: r.Season,
+    League: r.League,
+    PtsP: parseFloat(r.Pts_P),
+    GDP: parseFloat(r.GD_P),
+    UEFA: parseFloat(r.UEFA),
+    Cup: parseFloat(r.Cup),
+    Transfers: parseFloat(r.Transfers),
+    CSI: parseFloat(r.CSI),
+  }));
+
+  function csiWith(row, wDom, wUefa, wCup) {
+    const dom = 0.5 * row.PtsP + 0.5 * row.GDP;
+    return wDom * dom + wUefa * row.UEFA + wCup * row.Cup;
+  }
+
+  const colorLaLiga = "#E3A23C";
+  const colorPremier = "#1F4A34";
+
+  // ===== Gráfica: sensibilidad =====
+  const configs = [
+    { label: "65/25/10", w: [0.65, 0.25, 0.1] },
+    { label: "50/40/10", w: [0.5, 0.4, 0.1] },
+    { label: "35/55/10", w: [0.35, 0.55, 0.1] },
+  ];
+  const sensLaLiga = configs.map((c) => {
+    const sub = rows.filter((r) => r.League === "LaLiga" && r.Transfers > 0);
+    const effs = sub.map((r) => csiWith(r, ...c.w) / r.Transfers);
+    return effs.reduce((a, b) => a + b, 0) / effs.length;
+  });
+  const sensPremier = configs.map((c) => {
+    const sub = rows.filter((r) => r.League === "Premier" && r.Transfers > 0);
+    const effs = sub.map((r) => csiWith(r, ...c.w) / r.Transfers);
+    return effs.reduce((a, b) => a + b, 0) / effs.length;
+  });
+
+  new Chart(document.getElementById("grafica-sensibilidad"), {
+    type: "bar",
+    data: {
+      labels: configs.map((c) => c.label),
+      datasets: [
+        { label: "LaLiga", data: sensLaLiga, backgroundColor: colorLaLiga },
+        { label: "Premier League", data: sensPremier, backgroundColor: colorPremier },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: { title: { display: true, text: "Efficiency Index promedio bajo distintos repartos (Doméstico/UEFA/Copa)" } },
+    },
+  });
+
+  // ===== Gráfica: resultados generales =====
+  const laligaAll = rows.filter((r) => r.League === "LaLiga");
+  const premierAll = rows.filter((r) => r.League === "Premier");
+  const avgCSI = (arr) => arr.reduce((a, r) => a + r.CSI, 0) / arr.length;
+  const avgTransfers = (arr) => arr.reduce((a, r) => a + r.Transfers, 0) / arr.length;
+
+  new Chart(document.getElementById("grafica-resultados"), {
+    type: "bar",
+    data: {
+      labels: ["Club Success Index (prom.)", "Gasto en fichajes M€ (prom.)"],
+      datasets: [
+        { label: "LaLiga", data: [avgCSI(laligaAll), avgTransfers(laligaAll)], backgroundColor: colorLaLiga },
+        { label: "Premier League", data: [avgCSI(premierAll), avgTransfers(premierAll)], backgroundColor: colorPremier },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: { title: { display: true, text: "Éxito similar, gasto muy distinto" } },
+    },
+  });
+
+  // ===== Gráfica: top 5 eficiencia (gasto >= 10M) =====
+  const highSpend = rows.filter((r) => r.Transfers >= 10).map((r) => ({ ...r, eff: r.CSI / r.Transfers }));
+  highSpend.sort((a, b) => b.eff - a.eff);
+  const top5 = highSpend.slice(0, 5);
+
+  new Chart(document.getElementById("grafica-top5"), {
+    type: "bar",
+    data: {
+      labels: top5.map((r) => `${r.Squad} ${r.Season}`),
+      datasets: [
+        {
+          label: "Efficiency Index",
+          data: top5.map((r) => r.eff),
+          backgroundColor: top5.map((r) => (r.League === "LaLiga" ? colorLaLiga : colorPremier)),
+        },
+      ],
+    },
+    options: {
+      indexAxis: "y",
+      responsive: true,
+      plugins: { title: { display: true, text: "Top 5 más eficientes (gasto ≥ 10M)" }, legend: { display: false } },
+    },
+  });
+
+  // ===== Gráfica: Athletic Club vs otros clubes de bajo gasto =====
+  const lowSpendTeams = ["Osasuna", "Rayo Vallecano", "Eibar", "Mallorca", "Athletic Club"];
+  const teamAvg = lowSpendTeams.map((team) => {
+    const sub = laligaAll.filter((r) => r.Squad === team);
+    return { team, csi: sub.reduce((a, r) => a + r.CSI, 0) / sub.length };
+  });
+  const leagueAvgCSI = avgCSI(laligaAll);
+
+  new Chart(document.getElementById("grafica-athletic"), {
+    type: "bar",
+    data: {
+      labels: [...teamAvg.map((t) => t.team), "Promedio LaLiga"],
+      datasets: [
+        {
+          label: "CSI promedio",
+          data: [...teamAvg.map((t) => t.csi), leagueAvgCSI],
+          backgroundColor: [...teamAvg.map((t) => (t.team === "Athletic Club" ? "#E3A23C" : "#9FB3A6")), "#0B1712"],
+        },
+      ],
+    },
+    options: {
+      indexAxis: "y",
+      responsive: true,
+      plugins: { title: { display: true, text: "Athletic Club vs. otros clubes de bajo gasto (CSI promedio)" }, legend: { display: false } },
+    },
+  });
+
+  // ===== Gráfica: dispersión gasto vs CSI =====
+  function regression(arr) {
+    const n = arr.length;
+    const sumX = arr.reduce((a, r) => a + r.Transfers, 0);
+    const sumY = arr.reduce((a, r) => a + r.CSI, 0);
+    const sumXY = arr.reduce((a, r) => a + r.Transfers * r.CSI, 0);
+    const sumXX = arr.reduce((a, r) => a + r.Transfers * r.Transfers, 0);
+    const b = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+    const a = (sumY - b * sumX) / n;
+    return { a, b };
+  }
+  const regLaLiga = regression(laligaAll);
+  const regPremier = regression(premierAll);
+  const maxLaLiga = Math.max(...laligaAll.map((r) => r.Transfers));
+  const maxPremier = Math.max(...premierAll.map((r) => r.Transfers));
+
+  new Chart(document.getElementById("grafica-dispersión"), {
+    data: {
+      datasets: [
+        {
+          type: "scatter",
+          label: "LaLiga",
+          data: laligaAll.map((r) => ({ x: r.Transfers, y: r.CSI })),
+          backgroundColor: "rgba(227, 162, 60, 0.5)",
+        },
+        {
+          type: "scatter",
+          label: "Premier League",
+          data: premierAll.map((r) => ({ x: r.Transfers, y: r.CSI })),
+          backgroundColor: "rgba(31, 74, 52, 0.5)",
+        },
+        {
+          type: "line",
+          label: "Tendencia LaLiga (r=0.56)",
+          data: [{ x: 0, y: regLaLiga.a }, { x: maxLaLiga, y: regLaLiga.a + regLaLiga.b * maxLaLiga }],
+          borderColor: "#E3A23C",
+          borderWidth: 2,
+          pointRadius: 0,
+        },
+        {
+          type: "line",
+          label: "Tendencia Premier (r=0.41)",
+          data: [{ x: 0, y: regPremier.a }, { x: maxPremier, y: regPremier.a + regPremier.b * maxPremier }],
+          borderColor: "#1F4A34",
+          borderWidth: 2,
+          pointRadius: 0,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: { title: { display: true, text: "Gasto en fichajes vs. Club Success Index" } },
+      scales: {
+        x: { title: { display: true, text: "Gasto en fichajes (M€)" } },
+        y: { title: { display: true, text: "Club Success Index" } },
+      },
+    },
+  });
+
+  // ===== Regresión y residuales =====
+  function linreg(xs, ys) {
+    const n = xs.length;
+    const sumX = xs.reduce((a, b) => a + b, 0);
+    const sumY = ys.reduce((a, b) => a + b, 0);
+    const sumXY = xs.reduce((a, x, i) => a + x * ys[i], 0);
+    const sumXX = xs.reduce((a, x) => a + x * x, 0);
+    const b = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+    const a = (sumY - b * sumX) / n;
+    return { a, b };
+  }
+  const average = (arr) => arr.reduce((a, b) => a + b, 0) / arr.length;
+
+  // Regresión combinada (pooled), para comparar el promedio entre ligas
+  const pooledReg = linreg(rows.map((r) => r.Transfers), rows.map((r) => r.CSI));
+  rows.forEach((r) => {
+    r.residualPooled = r.CSI - (pooledReg.a + pooledReg.b * r.Transfers);
+  });
+  const avgResidualLaLiga = average(rows.filter((r) => r.League === "LaLiga").map((r) => r.residualPooled));
+  const avgResidualPremier = average(rows.filter((r) => r.League === "Premier").map((r) => r.residualPooled));
+
+  new Chart(document.getElementById("grafica-residual-promedio"), {
+    type: "bar",
+    data: {
+      labels: ["LaLiga", "Premier League"],
+      datasets: [
+        {
+          label: "Residual promedio (CSI real − CSI esperado)",
+          data: [avgResidualLaLiga, avgResidualPremier],
+          backgroundColor: [colorLaLiga, colorPremier],
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: { title: { display: true, text: "Residual promedio por liga (regresión combinada)" }, legend: { display: false } },
+    },
+  });
+
+  // Regresión por liga (separada), para identificar los casos mas destacados dentro de cada liga
+  function residualsByLeague(league) {
+    const sub = rows.filter((r) => r.League === league);
+    const reg = linreg(sub.map((r) => r.Transfers), sub.map((r) => r.CSI));
+    return sub.map((r) => ({ ...r, residual: r.CSI - (reg.a + reg.b * r.Transfers) }));
+  }
+  const withResiduals = [...residualsByLeague("LaLiga"), ...residualsByLeague("Premier")];
+  withResiduals.sort((a, b) => b.residual - a.residual);
+  const topResiduals = withResiduals.slice(0, 6);
+
+  new Chart(document.getElementById("grafica-top-residuales"), {
+    type: "bar",
+    data: {
+      labels: topResiduals.map((r) => `${r.Squad} ${r.Season}`),
+      datasets: [
+        {
+          label: "Residual",
+          data: topResiduals.map((r) => r.residual),
+          backgroundColor: topResiduals.map((r) => (r.League === "LaLiga" ? colorLaLiga : colorPremier)),
+        },
+      ],
+    },
+    options: {
+      indexAxis: "y",
+      responsive: true,
+      plugins: { title: { display: true, text: "Top 6 por residual (dentro de su propia liga)" }, legend: { display: false } },
+    },
+  });
+</script>
+
+<style>
+  .post-body {
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+    line-height: 1.75;
+  }
+  .post-body p {
+    margin: 0 0 1.25rem;
+  }
+  .post-body h2 {
+    font-size: 1.4rem;
+    margin: 2.5rem 0 1rem;
+  }
+  .post-body h3 {
+    font-size: 1.1rem;
+    margin: 2rem 0 0.75rem;
+  }
+</style>
