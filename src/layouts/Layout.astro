@@ -1,7 +1,12 @@
 ---
 import "../styles/global.css";
 
-const { title = "Football Data MX" } = Astro.props;
+const {
+  title = "Football Data MX",
+  description = "Fútbol, datos y aprendizaje — desde la cancha de colegios hasta las ligas de Europa. Blog, análisis de datos y artículos de soccer analytics en español.",
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <!doctype html>
@@ -11,6 +16,20 @@ const { title = "Football Data MX" } = Astro.props;
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph: controla cómo se ve el link al compartirlo en X, Reddit, WhatsApp, etc. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:locale" content="es_MX" />
+
+    <!-- Twitter/X Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
